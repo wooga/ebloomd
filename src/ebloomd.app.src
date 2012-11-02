@@ -1,0 +1,7 @@
+{application, ebloomd, [
+    {description, "Bloom Filter Server"},
+    {vsn, git},
+    {registered, []},
+    {applications, [kernel, stdlib]},
+    {env, []}
+]}.

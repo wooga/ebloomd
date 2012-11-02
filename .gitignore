@@ -1,0 +1,8 @@
+*.beam
+*.app
+*.dump
+*.log
+*.pid
+.DS_Store
+deps/*
+ebin/*
