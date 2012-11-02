@@ -1,0 +1,7 @@
+#!/bin/sh
+
+post_processor=$(which ruby >/dev/null && echo "script/test-filter" \
+    || echo "cat")
+
+script/rebar clean compile skip_deps=true && \
+    script/test-runner | $post_processor
