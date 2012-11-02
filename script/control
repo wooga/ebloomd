@@ -89,8 +89,8 @@ case "$1" in
     require_started
     erl -hidden -noshell -noinput -name ${NAME}_reloader@`hostname` \
         -setcookie $COOKIE \
-        -s $MAIN_MOD $RELOAD_FUN $NODE_NAME \
-        -pa $APP_ROOT/deps/*/ebin $APP_ROOT/ebin
+        -pa $APP_ROOT/deps/*/ebin $APP_ROOT/ebin \
+        -s $MAIN_MOD $RELOAD_FUN $NODE_NAME $APP_ROOT
     ;;
 
     *) print_usage ;;
