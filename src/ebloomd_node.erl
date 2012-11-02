@@ -5,8 +5,8 @@
 -compile ([export_all]).
 -include_lib ("et/include/et_types.hrl").
 
+
 boot() ->
-    %
     application:start(ebloomd).
 
 
