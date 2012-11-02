@@ -1,0 +1,6 @@
++A 8
++K true
+-sbt ts
+-swt low
+-hidden
+-env ERL_MAX_PORTS 4096

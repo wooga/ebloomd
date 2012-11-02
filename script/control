@@ -1,0 +1,99 @@
+#!/bin/sh
+
+lib_dir=$(dirname $0)
+. $lib_dir/lib/subr.sh
+
+## Script-wide variables:
+
+# Module and function to call on startup.
+MAIN_MOD=${MAIN_MOD:-"ebloomd_node"}
+BOOT_FUN=${BOOT_FUN:-"boot"}
+RELOAD_FUN=${RELOAD_FUN:-"reload"}
+
+# The application's root directory.
+APP_ROOT=${APP_ROOT:-$(pwd)}
+
+# The application's name, defaults to the directory name of APP_ROOT.
+APP_NAME=${APP_NAME:-$(read_appname $APP_ROOT)}
+
+# Name of the Erlang node.
+NODE_NAME=${NODE_NAME:-"$APP_NAME@$(hostname)"}
+
+# Erlang node cookie to use.
+COOKIE="fb7a7f0904f99f3d24ff49ce8a8fb03cc419c6b2"
+
+# Directory containing pidfiles.
+PID_DIR=${PID_DIR:-"$APP_ROOT/tmp/pids"}
+
+
+## Main routine + usage.
+
+# Print the program's usage information.
+print_usage() {
+    cat <<EOF 1>&2
+USAGE
+    script/control <action> [action_args]
+
+ACTIONS
+    start
+    console
+    attach
+    stop
+    reload
+EOF
+    exit 1
+}
+
+case "$1" in
+    start)
+    require_stopped
+    with_pid \
+        erl -pa $APP_ROOT/deps/*/ebin $APP_ROOT/ebin \
+            -detached \
+            -hidden \
+            -setcookie $COOKIE \
+            -name $NODE_NAME \
+            -args_file $APP_ROOT/config/vm.args \
+            -s $MAIN_MOD $BOOT_FUN
+    ;;
+
+    console)
+    require_stopped
+    erl -pa $APP_ROOT/deps/*/ebin $APP_ROOT/ebin \
+        -setcookie $COOKIE \
+        -args_file $APP_ROOT/config/vm.args \
+        -name $NODE_NAME \
+        -s $MAIN_MOD $BOOT_FUN
+    ;;
+
+    attach)
+    require_started
+    erl -hidden \
+        -name ${NAME}_attacher@`hostname` \
+        -setcookie $COOKIE \
+        -args_file $APP_ROOT/config/vm.args \
+        -remsh $NODE_NAME
+    ;;
+
+    stop)
+    require_started
+    pid=$(cat $(default_pidfile))
+    while `kill -3 $pid 2>/dev/null`;
+    do
+        continue
+    done
+    rm $(default_pidfile)
+    ;;
+
+    reload)
+    require_started
+    erl -hidden -noshell -noinput -name ${NAME}_reloader@`hostname` \
+        -setcookie $COOKIE \
+        -s $MAIN_MOD $RELOAD_FUN $NODE_NAME \
+        -pa $APP_ROOT/deps/*/ebin $APP_ROOT/ebin
+    ;;
+
+    *) print_usage ;;
+esac
+
+exit 0
