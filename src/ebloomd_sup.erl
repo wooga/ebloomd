@@ -13,4 +13,6 @@ start_link() ->
 
 init(_Args) ->
     % Zero childs so far.
-    et_sup:spec().
+    et_sup:spec ([
+        et_sup:child(ebloomd_manager, worker)
+    ]).
