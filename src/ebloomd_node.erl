@@ -12,7 +12,7 @@ boot() ->
 
 reload([Node, AppRoot]) ->
     {Status, Message} = rpc:call (
-        Node, bi_node, local_reload,
+        Node, ?MODULE, local_reload,
         [code:get_path(), ?a2l(AppRoot)]
     ),
     io:format("~s~n", [Message]),

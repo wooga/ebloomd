@@ -10,11 +10,6 @@
     handle_info/2, terminate/2, code_change/3]).
 
 
-% For your convenience.
-
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-
 add(FilterName, FilterPid) ->
     gen_server:call(?MODULE, {FilterName, FilterPid}).
 
@@ -23,6 +18,11 @@ delete(FilterName) ->
 
 get(FilterName) ->
     gen_server:call(?MODULE, FilterName).
+
+
+
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 
 init(_Args) ->
