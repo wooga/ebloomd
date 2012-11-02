@@ -2,8 +2,9 @@ guard 'shell' do
   interactor :off
 
   watch(%r{((?:src|test)/(.*?)(?:_test)?.erl)}) do |md|
+    suite = File.basename(md[2])
     files = Dir['**/**.erl']
-    tests  = files.grep(/#{suite}_test/).grep /test/
+    tests = files.grep(/#{suite}_test/).grep /test/
 
     tests.each do |t|
         print `script/rebar compile skip_deps=true && \
