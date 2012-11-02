@@ -3,5 +3,6 @@
     {vsn, git},
     {registered, []},
     {applications, [kernel, stdlib]},
+    {mod, {ebloomd_app, []}},
     {env, []}
 ]}.
