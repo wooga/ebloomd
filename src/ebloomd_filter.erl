@@ -22,30 +22,35 @@ start_link(Size, ErrRate, Seed) ->
     gen_server:start_link(?MODULE, [Size, ErrRate, Seed], []).
 
 
-init([Size, ErrRate, Seed]) ->
+init(Settings = [Size, ErrRate, Seed]) ->
     % State is the reference to the mutable filter.
     {ok, Ref} = ebloom:new(Size, ErrRate, Seed),
-    {ok, Ref}.
+    {ok, {Ref, Settings}}.
+
+
+
+% Rotate by replacing the filter altogether.
+handle_call(rotate, _From, S = {Ref, Settings}) ->
+    {ok, NewS} = init(Settings),
+    {reply, done, NewS};
 
 
 % Check for element membership with the filter.
-handle_call({contains, Element}, _From, Ref) when is_binary(Element) ->
-    {reply, ebloom:contains(Ref, Element), Ref};
+handle_call({contains, Element}, _From, S = {Ref, _}) when is_binary(Element) ->
+    {reply, ebloom:contains(Ref, Element), S};
 
 handle_call(_Message, _From, State) ->
     {reply, undefined, State}.
 
 
 % Insert a new element into the bloom filter.
-handle_cast({insert, Element}, Ref) when is_binary(Element) ->
+handle_cast({insert, Element}, S = {Ref, _}) when is_binary(Element) ->
     ebloom:insert(Ref, Element),
-    {noreply, Ref};
-
-handle_cast(_Request, State) ->
-    {noreply, State}.
+    {noreply, S};
 
 
 % Ignore undefined calls.
+handle_cast(_Request, State) -> {noreply, State}.
 handle_info(_Info, State) -> {noreply, State}.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
 terminate(_Reason, _State) -> terminated.
