@@ -17,7 +17,7 @@ delete(FilterName) ->
     gen_server:call(?MODULE, {delete, FilterName}).
 
 get(FilterName) ->
-    gen_server:call(?MODULE, FilterName).
+    gen_server:call(?MODULE, {get, FilterName}).
 
 
 
@@ -31,7 +31,7 @@ init(_Args) ->
 
 
 % Obtain the pid for the specified filter name.
-handle_call(FilterName, _From, Tree) when is_atom(FilterName) ->
+handle_call({get, FilterName}, _From, Tree) ->
     FilterPid = try
         gb_trees:get(FilterName, Tree)
     catch _:_ -> undefined end,
@@ -39,18 +39,19 @@ handle_call(FilterName, _From, Tree) when is_atom(FilterName) ->
 
 
 % Insert a new filter into the list list of managed filters.
-handle_call({FilterName, FilterPid}, _From, Tree)
-        when is_atom(FilterName) andalso is_pid(FilterPid) ->
+handle_call({FilterName, FilterPid}, _From, Tree) when is_pid(FilterPid) ->
     {reply, ok, gb_trees:enter(FilterName, FilterPid, Tree)};
 
 
 % Remove a filter from the list.
-handle_call({delete, FilterName}, _From, Tree) when is_atom(FilterName) ->
+handle_call({delete, FilterName}, _From, Tree) ->
+    % Cancel all rotation timers.
+    ebloomd_rotator:cancel(FilterName),
     {reply, ok, gb_trees:delete(FilterName, Tree)};
 
 
 % Ignore undefined calls.
-handle_call(_Message, _From, Tree) -> {reply, ok, Tree}.
+handle_call(_Message, _From, State) -> {reply, undefined, State}.
 handle_cast(_Request, State) -> {noreply, State}.
 handle_info(_Info, State) -> {noreply, State}.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.

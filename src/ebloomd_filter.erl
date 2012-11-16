@@ -30,7 +30,7 @@ init(Settings = [Size, ErrRate, Seed]) ->
 
 
 % Rotate by replacing the filter altogether.
-handle_call(rotate, _From, S = {Ref, Settings}) ->
+handle_call(rotate, _From, {_Ref, Settings}) ->
     {ok, NewS} = init(Settings),
     {reply, done, NewS};
 
