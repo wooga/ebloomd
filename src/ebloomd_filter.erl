@@ -29,8 +29,8 @@ init(Settings = [Size, ErrRate, Seed]) ->
 
 
 
-% Rotate by replacing the filter altogether.
-handle_call(rotate, _From, {_Ref, Settings}) ->
+% purge by replacing the filter altogether.
+handle_call(purge, _From, {_Ref, Settings}) ->
     {ok, NewS} = init(Settings),
     {reply, done, NewS};
 

@@ -27,8 +27,8 @@ test_rotating() ->
     ebloomd_filter:insert(filter, Element),
     ?assert(ebloomd_filter:contains(filter, Element)),
 
-    % Then sending the rotate command,
-    gen_server:call(filter, rotate),
+    % Then sending the purge command,
+    gen_server:call(filter, purge),
 
     % Should turnover the filter.
     ?assert_not(ebloomd_filter:contains(filter, Element)).

@@ -12,8 +12,8 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init(_Args) ->
-    % Start the filter manager and the rotator.
+    % Start the filter manager and the purger.
     et_sup:spec ([
         et_sup:child(ebloomd_manager, worker),
-        et_sup:child(ebloomd_rotator, worker)
+        et_sup:child(ebloomd_purger, worker)
     ]).

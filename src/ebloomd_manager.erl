@@ -46,7 +46,7 @@ handle_call({FilterName, FilterPid}, _From, Tree) when is_pid(FilterPid) ->
 % Remove a filter from the list.
 handle_call({delete, FilterName}, _From, Tree) ->
     % Cancel all rotation timers.
-    ebloomd_rotator:cancel(FilterName),
+    ebloomd_purger:cancel(FilterName),
     {reply, ok, gb_trees:delete(FilterName, Tree)};
 
 

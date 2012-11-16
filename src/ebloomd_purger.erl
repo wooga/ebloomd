@@ -1,7 +1,7 @@
 %% @license The FreeBSD License
 %% @copyright 2012 Wooga GmbH
 
--module (ebloomd_rotator).
+-module (ebloomd_purger).
 -compile ([export_all]).
 
 -behavior (gen_server).
@@ -10,8 +10,8 @@
     handle_info/2, terminate/2, code_change/3]).
 
 
-rotate(FilterName, Interval) ->
-    gen_server:cast(?MODULE, {rotate, FilterName, Interval}).
+purge(FilterName, Interval) ->
+    gen_server:cast(?MODULE, {purge, FilterName, Interval}).
 
 cancel(FilterName) ->
     gen_server:cast(?MODULE, {cancel, FilterName}).
@@ -27,17 +27,17 @@ init(_) ->
     {ok, gb_trees:empty()}.
 
 
-% Check for element membership with the filter.
-handle_cast({rotate, FilterName, Interval}, Tree) ->
+% Set up a purging interval for the filter.
+handle_cast({purge, FilterName, Interval}, Tree) ->
     % Cancel old timer,
     {_, CleanTree} = handle_cast({cancel, FilterName}, Tree),
     % Set up new timer.
     {ok, TRef} =
-        timer:apply_interval(Interval,?MODULE, send_rotate, [FilterName]),
+        timer:apply_interval(Interval,?MODULE, send_purge, [FilterName]),
     {noreply, gb_trees:insert(FilterName, TRef, CleanTree)};
 
 
-% Cancel the rotation timer.
+% Cancel the purging timer.
 handle_cast({cancel, FilterName}, Tree) ->
     NewTree = try
         timer:cancel(gb_trees:get(FilterName, Tree)),
@@ -54,7 +54,7 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 terminate(_Reason, _State) -> terminated.
 
 
-% Send the rotate command to the filter.
-send_rotate(FilterName) ->
+% Send the purge command to the filter.
+send_purge(FilterName) ->
     FilterPid = ebloomd_manager:get(FilterName),
-    gen_server:call(FilterPid, rotate).
+    gen_server:call(FilterPid, purge).

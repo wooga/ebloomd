@@ -1,4 +1,4 @@
--module (ebloomd_rotator_test).
+-module (ebloomd_purger_test).
 -compile (export_all).
 -include_lib ("etest/include/etest.hrl").
 
@@ -18,8 +18,8 @@ test_rotating() ->
 
     ebloomd_manager:add(filter_name, Pid),
 
-    % And then setting up rotation for it,
-    ebloomd_rotator:rotate(filter_name, 100),
+    % And then setting up flushing for it,
+    ebloomd_purger:purge(filter_name, 100),
 
     % And waiting for a little while longer than is the timeout,
     timer:sleep(200),
