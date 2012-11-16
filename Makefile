@@ -1,6 +1,9 @@
 .PHONY: test
 
-all: compile test
+all: clean_all get_deps compile_all test
+
+get_deps:
+	script/rebar get-deps
 
 compile:
 	script/rebar compile skip_deps=true
