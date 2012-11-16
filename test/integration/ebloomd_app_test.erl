@@ -10,4 +10,7 @@ test_application_startup() ->
     % When asking Erlang's `application` to start `ebloomd`,
     application:start(ebloomd),
     % Then ebloomd should be running.
-    ?assert(proplists:is_defined(ebloomd, application:which_applications())).
+    Applications = application:which_applications(),
+    ?assert(proplists:is_defined(ebloomd, Applications)),
+    % And ranch as well.
+    ?assert(proplists:is_defined(ranch, Applications)).
