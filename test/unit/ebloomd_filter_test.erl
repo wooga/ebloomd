@@ -4,7 +4,7 @@
 
 before_test() ->
     Args = [_Size = 1000, _ErrRate = 0.01, _Seed = 3684364361],
-    {ok, _} = gen_server:start_link({local, filter}, ebloomd_filter, Args, []).
+    {ok, _} = gen_server:start({local, filter}, ebloomd_filter, Args, []).
 
 after_test() ->
     exit(whereis(filter), kill),

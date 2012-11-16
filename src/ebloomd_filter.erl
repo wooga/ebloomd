@@ -18,8 +18,8 @@ contains(FilterPid, Element) ->
 
 
 
-start_link(Size, ErrRate, Seed) ->
-    gen_server:start_link(?MODULE, [Size, ErrRate, Seed], []).
+start(Size, ErrRate, Seed) ->
+    gen_server:start(?MODULE, [Size, ErrRate, Seed], []).
 
 
 init(Settings = [Size, ErrRate, Seed]) ->

@@ -11,7 +11,7 @@ after_test() ->
 
 test_rotating() ->
     % When having a manager plus a filter and one element,
-    {ok, Pid} = ebloomd_filter:start_link(100, 0.000001, 84648),
+    {ok, Pid} = ebloomd_filter:start(100, 0.000001, 84648),
     Element = <<"some_element">>,
     ebloomd_filter:insert(Pid, Element),
     ?assert(ebloomd_filter:contains(Pid, Element)),
