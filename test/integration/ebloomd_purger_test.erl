@@ -6,6 +6,7 @@ before_test() ->
     application:start(ebloomd).
 
 after_test() ->
+    application:stop(ranch),
     application:stop(ebloomd).
 
 

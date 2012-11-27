@@ -4,12 +4,13 @@
 -module (ebloomd_app).
 -compile ([export_all]).
 
-
 -behaviour (application).
 -export ([start/2, stop/1]).
 
+
 % Callback starting the backend.
 start(_StartType, _StartArgs) ->
+    % Start ranch as well.
     application:start(ranch),
     ebloomd_sup:start_link().
 

@@ -39,6 +39,9 @@ handle_call(purge, _From, {_Ref, Settings}) ->
 handle_call({contains, Element}, _From, S = {Ref, _}) when is_binary(Element) ->
     {reply, ebloom:contains(Ref, Element), S};
 
+handle_call({contains, Element}, From, S) ->
+    handle_call({contains, term_to_binary(Element)}, From, S);
+
 handle_call(_Message, _From, State) ->
     {reply, undefined, State}.
 
@@ -47,6 +50,9 @@ handle_call(_Message, _From, State) ->
 handle_cast({insert, Element}, S = {Ref, _}) when is_binary(Element) ->
     ebloom:insert(Ref, Element),
     {noreply, S};
+
+handle_cast({insert, Element}, S) ->
+    handle_cast({insert, term_to_binary(Element)}, S);
 
 
 % Ignore undefined calls.

@@ -3,6 +3,7 @@
 -include_lib ("etest/include/etest.hrl").
 
 after_test() ->
+    application:stop(ranch),
     application:stop(ebloomd).
 
 
