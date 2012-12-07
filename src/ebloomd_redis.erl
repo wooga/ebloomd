@@ -17,14 +17,15 @@ start_link(ListenerPid, Socket, Transport, Opts) ->
 
 init(ListenerPid, Socket, Transport, _Opts = []) ->
     ok = ranch:accept_ack(ListenerPid),
-    loop(Socket, Transport, _Db = default).
+    FPid = ebloomd_manager:get(_Db = default),
+    loop(Socket, Transport, FPid).
 
 
-loop(Socket, Transport, Db) ->
+loop(Socket, Transport, FPid) ->
     % 500ms timeout since most likely used from within the same network.
     case Transport:recv(Socket, _Length = 0, _Timeout = 500) of
         {ok, Data} ->
-            {Reply, NewDb} = handle(Data, Db),
+            {Reply, NewDb} = handle(Data, FPid),
             Transport:send(Socket, Reply),
             loop(Socket, Transport, NewDb);
 
@@ -41,30 +42,30 @@ loop(Socket, Transport, Db) ->
 
 % Handle set requests by inserting the key into the filter and ignoring the
 % value altogether.
-handle(<<"*3\r\n$3\r\nSET\r\n", Rest/binary>>, Db) ->
+handle(<<"*3\r\n$3\r\nSET\r\n", Rest/binary>>, FPid) ->
     case io_lib:fread("$~d\r\n~s\r\n$~d\r\n~s\r\n", ?b2l(Rest)) of
         {ok, [_, KeyStr, _, _], _} ->
-            ebloomd_filter:insert(ebloomd_manager:get(Db), KeyStr);
+            ebloomd_filter:insert(FPid, KeyStr);
 
         _ -> continue
     end,
-    {<<"+OK\r\n">>, Db};
+    {<<"+OK\r\n">>, FPid};
 
 
 % Handle get requests by looking up the presented key in the filter and
 % returning either 1 in case present or 0 as the 'original' value.
-handle(<<"*2\r\n$3\r\nGET\r\n", Rest/binary>>, Db) ->
+handle(<<"*2\r\n$3\r\nGET\r\n", Rest/binary>>, FPid) ->
     Reply = case io_lib:fread("$~d\r\n~s\r\n", ?b2l(Rest)) of
         {ok, [_, KeyStr], _} ->
-            case ebloomd_filter:contains(ebloomd_manager:get(Db), KeyStr) of
+            case ebloomd_filter:contains(FPid, KeyStr) of
                 true -> <<"+1\r\n">>;
                 _ -> <<"+0\r\n">>
             end;
 
         _ -> <<"+0\r\n">>
     end,
-    {Reply, Db};
+    {Reply, FPid};
 
 
-handle(Data, Db) ->
-    {<<"+OK\r\n">>, Db}.
+handle(Data, FPid) ->
+    {<<"+OK\r\n">>, FPid}.
