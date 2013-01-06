@@ -9,7 +9,7 @@ Add `ebloomd` as a [rebar](https://github.com/basho/rebar) dependency and make s
 % rebar.config
 {deps, [
     {ebloomd, "",
-        {git, "git://github.com/wooga/etest.git",
+        {git, "git://github.com/johannesh/ebloomd.git",
         {branch, "master"}}}
 ]}.
 ```
