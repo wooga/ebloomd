@@ -11,10 +11,7 @@
 % Callback starting the backend.
 start(_StartType, _StartArgs) ->
     % Start ranch as well.
-    application:start(ranch),
     ebloomd_sup:start_link().
 
 % Just `ok`.
-stop(_State) ->
-    application:stop(ranch),
-    ok.
+stop(_State) -> ok.
