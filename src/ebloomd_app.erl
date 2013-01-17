@@ -15,4 +15,6 @@ start(_StartType, _StartArgs) ->
     ebloomd_sup:start_link().
 
 % Just `ok`.
-stop(_State) -> ok.
+stop(_State) ->
+    application:stop(ranch),
+    ok.
