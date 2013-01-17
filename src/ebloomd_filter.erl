@@ -14,8 +14,10 @@ insert(FilterPid, Element) ->
     gen_server:cast(FilterPid, {insert, Element}).
 
 contains(FilterPid, Element) ->
-    gen_server:call(FilterPid, {contains, Element}).
+    contains(FilterPid, Element, infinity).
 
+contains(FilterPid, Element, Timeout) ->
+    gen_server:call(FilterPid, {contains, Element}, Timeout).
 
 
 start(Size, ErrRate, Seed) ->
