@@ -17,7 +17,7 @@ default_pidfile() {
 # FIXME: Works with erl only.
 with_pid() {
     (
-        tag=$(mktemp)
+        tag=$(mktemp -t ebloomd)
         $@ -extra $tag
         pid=$(ps auxwww | grep beam | grep "$tag" | awk '{print $2}')
         echo $pid > $(default_pidfile)
